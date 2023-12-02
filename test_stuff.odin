@@ -1,4 +1,4 @@
-package main
+package aoc
 
 import "core:testing"
 import "core:fmt"

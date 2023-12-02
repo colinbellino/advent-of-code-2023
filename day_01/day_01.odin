@@ -5,6 +5,7 @@ import "core:log"
 import "core:testing"
 import "core:strings"
 import "core:strconv"
+import aoc ".."
 
 DIGIT_NAMES: [10]string = {
     "one",
@@ -36,11 +37,11 @@ day_01a_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
 
     {
-        input := load_file_or_fail(t, "day_01/day_01a_input_01.txt")
+        input := aoc.load_file_or_fail(t, "day_01/day_01a_input_01.txt")
         testing.expect_value(t, day_01a_process(input), 142)
     }
     {
-        input := load_file_or_fail(t, "day_01/day_01a_input_02.txt")
+        input := aoc.load_file_or_fail(t, "day_01/day_01a_input_02.txt")
         testing.expect_value(t, day_01a_process(input), 55607)
     }
 }
@@ -52,11 +53,11 @@ day_01b_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
 
     {
-        input := load_file_or_fail(t, "day_01/day_01b_input_01.txt")
+        input := aoc.load_file_or_fail(t, "day_01/day_01b_input_01.txt")
         testing.expect_value(t, day_01b_process(input), 281)
     }
     {
-        input := load_file_or_fail(t, "day_01/day_01b_input_02.txt")
+        input := aoc.load_file_or_fail(t, "day_01/day_01b_input_02.txt")
         testing.expect_value(t, day_01b_process(input), 55291)
     }
 }
