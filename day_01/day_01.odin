@@ -7,6 +7,20 @@ import "core:strings"
 import "core:strconv"
 import aoc ".."
 
+@(test) day_01a_test :: proc(t: ^testing.T) {
+    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
+    testing.expect_value(t, day_01a_process(aoc.load_file_or_fail(t, "day_01/day_01a_input_01.txt")), 142)
+    testing.expect_value(t, day_01a_process(aoc.load_file_or_fail(t, "day_01/day_01a_input_02.txt")), 55607)
+}
+
+// I did not manage to make the part B of this work by myself so i ended up reusing the one by https://github.com/flysand7/advent-of-code/blob/main/day1/main.odin
+// I managed to learn things from it so this day wasn't totally lost ^^
+@(test) day_01b_test :: proc(t: ^testing.T) {
+    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
+    testing.expect_value(t, day_01b_process(aoc.load_file_or_fail(t, "day_01/day_01b_input_01.txt")), 281)
+    testing.expect_value(t, day_01b_process(aoc.load_file_or_fail(t, "day_01/day_01a_input_02.txt")), 55291)
+}
+
 DIGIT_NAMES: [10]string = {
     "one",
     "two",
@@ -30,36 +44,6 @@ DIGIT_NUMBERS: [10]int = {
     3,
     7,
     8,
-}
-
-@(test)
-day_01a_test :: proc(t: ^testing.T) {
-    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-
-    {
-        input := aoc.load_file_or_fail(t, "day_01/day_01a_input_01.txt")
-        testing.expect_value(t, day_01a_process(input), 142)
-    }
-    {
-        input := aoc.load_file_or_fail(t, "day_01/day_01a_input_02.txt")
-        testing.expect_value(t, day_01a_process(input), 55607)
-    }
-}
-
-// I did not manage to make the part B of this work by myself so i ended up reusing the one by https://github.com/flysand7/advent-of-code/blob/main/day1/main.odin
-// I managed to learn things from it so this day wasn't totally lost ^^
-@(test)
-day_01b_test :: proc(t: ^testing.T) {
-    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-
-    {
-        input := aoc.load_file_or_fail(t, "day_01/day_01b_input_01.txt")
-        testing.expect_value(t, day_01b_process(input), 281)
-    }
-    {
-        input := aoc.load_file_or_fail(t, "day_01/day_01b_input_02.txt")
-        testing.expect_value(t, day_01b_process(input), 55291)
-    }
 }
 
 day_01a_process :: proc(input: []byte) -> (result: int) {

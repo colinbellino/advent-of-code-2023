@@ -15,32 +15,16 @@ CUBES_BLUE  :: 14
 CUBE_KEYS := [3]rune { 'r', 'g', 'b' }
 CUBE_MAX  := [3]int  { 12,  13,  14 }
 
-@(test)
-day_02a_test :: proc(t: ^testing.T) {
+@(test) day_02a_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-
-    {
-        input := aoc.load_file_or_fail(t, "day_02/day_02a_input_01.txt")
-        testing.expect_value(t, day_02a_process(input), 8)
-    }
-    {
-        input := aoc.load_file_or_fail(t, "day_02/day_02a_input_02.txt")
-        testing.expect_value(t, day_02a_process(input), 2285)
-    }
+    testing.expect_value(t, day_02a_process(aoc.load_file_or_fail(t, "day_02/day_02a_input_01.txt")), 8)
+    testing.expect_value(t, day_02a_process(aoc.load_file_or_fail(t, "day_02/day_02a_input_02.txt")), 2285)
 }
 
-@(test)
-day_02b_test :: proc(t: ^testing.T) {
+@(test) day_02b_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-
-    {
-        input := aoc.load_file_or_fail(t, "day_02/day_02b_input_01.txt")
-        testing.expect_value(t, day_02b_process(input), 2286)
-    }
-    {
-        input := aoc.load_file_or_fail(t, "day_02/day_02a_input_02.txt")
-        testing.expect_value(t, day_02b_process(input), 77021)
-    }
+    testing.expect_value(t, day_02b_process(aoc.load_file_or_fail(t, "day_02/day_02b_input_01.txt")), 2286)
+    testing.expect_value(t, day_02b_process(aoc.load_file_or_fail(t, "day_02/day_02a_input_02.txt")), 77021)
 }
 
 day_02a_process :: proc(input: []byte) -> (result: int) {
