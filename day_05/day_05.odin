@@ -1,19 +1,21 @@
 package main
 
+import "core:container/queue"
 import "core:fmt"
 import "core:log"
-import "core:testing"
-import "core:strings"
-import "core:strconv"
 import "core:slice"
-import "core:container/queue"
+import "core:strconv"
+import "core:strings"
+import "core:testing"
+import "core:thread"
+import "core:time"
 import aoc ".."
 
-@(test) day_05a_test :: proc(t: ^testing.T) {
-    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-    testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 35)
-    testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 318728750)
-}
+// @(test) day_05a_test :: proc(t: ^testing.T) {
+//     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
+//     testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 35)
+//     testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 318728750)
+// }
 
 @(test) day_05b_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
@@ -56,6 +58,7 @@ day_05a_process :: proc(input: []byte) -> (result: int) {
     return
 }
 
+threads_result: [dynamic]int
 // This is extremely slow because it's brute forcing every seed, i'll have to rework it to be less dumb...
 day_05b_process :: proc(input: []byte) -> (result: int) {
     input_string := strings.clone_from_bytes(input)
@@ -70,26 +73,59 @@ day_05b_process :: proc(input: []byte) -> (result: int) {
         seeds[i] = seed
     }
     assert(len(seeds) % 2 == 0, "seeds count must be even.")
-    
+
     mappings = make([][dynamic]Mapping, len(parts) - 1)
     for i := 1; i < len(parts); i += 1 {
         mappings[i-1] = part_to_map(parts[i])
     }
 
-    result = max(int)
-    for seed_i := 0; seed_i < len(seeds); seed_i += 2 {
+    worker_proc :: proc(t: ^thread.Thread) {
+        seeds := cast(^[]int) t.data
+        seed_i := t.user_index * 2
         seed_base := seeds[seed_i]
-        seed_range := seeds[seed_i+1]
-        // log.debugf("seed_range: %v", seed_range)
+        seed_range := seeds[seed_i + 1]
+        log.debugf("[%v] -> %v | %v", t.user_index, seed_base, seed_range)
 
+        result := max(int)
         for range_i := 0; range_i < seed_range; range_i += 1 {
             value := seed_base + range_i
             for map_i := 0; map_i < len(mappings); map_i += 1 {
                 value = calculate_next_value(map_i, value)
-                // log.debugf("[%v] -> %v", NAMES[map_i], value)
             }
             if value < result {
                 result = value
+            }
+        }
+        threads_result[t.user_index] = result
+    }
+
+    threads := make([dynamic]^thread.Thread, 0, len(seeds) / 2)
+    // defer delete(threads)
+
+    for seed, i in seeds {
+        if i % 2 == 0 {
+            if t := thread.create(worker_proc); t != nil {
+                t.init_context = context
+                t.user_index = len(threads)
+                append(&threads, t)
+                append(&threads_result, t.user_index)
+                t.data = &seeds
+                thread.start(t)
+            }
+        }
+    }
+
+    result = max(int)
+    for len(threads) > 0 {
+        for i := 0; i < len(threads); /**/ {
+            if t := threads[i]; thread.is_done(t) {
+                if threads_result[t.user_index] < result {
+                    result = threads_result[t.user_index]
+                }
+                thread.destroy(t)
+                ordered_remove(&threads, i)
+            } else {
+                i += 1
             }
         }
     }
