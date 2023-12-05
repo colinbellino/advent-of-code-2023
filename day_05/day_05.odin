@@ -15,11 +15,11 @@ import aoc ".."
     testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 318728750)
 }
 
-// @(test) day_05b_test :: proc(t: ^testing.T) {
-//     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-//     testing.expect_value(t, day_05b_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 30)
-//     testing.expect_value(t, day_05b_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 9997537)
-// }
+@(test) day_05b_test :: proc(t: ^testing.T) {
+    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
+    testing.expect_value(t, day_05b_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 46)
+    testing.expect_value(t, day_05b_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 37384986)
+}
 
 day_05a_process :: proc(input: []byte) -> (result: int) {
     input_string := strings.clone_from_bytes(input)
@@ -34,15 +34,15 @@ day_05a_process :: proc(input: []byte) -> (result: int) {
         seeds[i] = seed
     }
     
-    maps = make([][dynamic]Mapping, len(parts) - 1)
+    mappings = make([][dynamic]Mapping, len(parts) - 1)
     for i := 1; i < len(parts); i += 1 {
-        maps[i-1] = part_to_map(parts[i])
+        mappings[i-1] = part_to_map(parts[i])
     }
 
     result = max(int)
     for seed in seeds {
         value := seed
-        for i := 0; i < len(maps); i += 1 {
+        for i := 0; i < len(mappings); i += 1 {
             prev := value
             value = calculate_next_value(i, value)
             // log.debugf("[%v] %v -> %v", NAMES[i], prev, value)
@@ -56,15 +56,56 @@ day_05a_process :: proc(input: []byte) -> (result: int) {
     return
 }
 
+// This is extremely slow because it's brute forcing every seed, i'll have to rework it to be less dumb...
+day_05b_process :: proc(input: []byte) -> (result: int) {
+    input_string := strings.clone_from_bytes(input)
+
+    parts := strings.split(input_string, "\n\n")
+
+    seeds_string := strings.split_multi(parts[0], { ": ", " " })[1:]
+    seeds := make([]int, len(seeds_string))
+    for _, i in seeds_string {
+        seed, parse_ok := strconv.parse_int(seeds_string[i])
+        assert(parse_ok)
+        seeds[i] = seed
+    }
+    assert(len(seeds) % 2 == 0, "seeds count must be even.")
+    
+    mappings = make([][dynamic]Mapping, len(parts) - 1)
+    for i := 1; i < len(parts); i += 1 {
+        mappings[i-1] = part_to_map(parts[i])
+    }
+
+    result = max(int)
+    for seed_i := 0; seed_i < len(seeds); seed_i += 2 {
+        seed_base := seeds[seed_i]
+        seed_range := seeds[seed_i+1]
+        // log.debugf("seed_range: %v", seed_range)
+
+        for range_i := 0; range_i < seed_range; range_i += 1 {
+            value := seed_base + range_i
+            for map_i := 0; map_i < len(mappings); map_i += 1 {
+                value = calculate_next_value(map_i, value)
+                // log.debugf("[%v] -> %v", NAMES[map_i], value)
+            }
+            if value < result {
+                result = value
+            }
+        }
+    }
+
+    return
+}
+
 Mapping :: struct {
     destination: int,
     source: int,
     range: int,
 }
 
-maps: [][dynamic]Mapping
+mappings: [][dynamic]Mapping
 calculate_next_value :: proc(i: int, value: int) -> int {
-    for item in maps[i] {
+    for item in mappings[i] {
         if value >= item.source && value <= item.source + item.range {
             return value + item.destination - item.source
         }
