@@ -11,11 +11,11 @@ import "core:thread"
 import "core:time"
 import aoc ".."
 
-// @(test) day_05a_test :: proc(t: ^testing.T) {
-//     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
-//     testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 35)
-//     testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 318728750)
-// }
+@(test) day_05a_test :: proc(t: ^testing.T) {
+    context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
+    testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_01.txt")), 35)
+    testing.expect_value(t, day_05a_process(aoc.load_file_or_fail(t, "day_05/day_05a_input_02.txt")), 318728750)
+}
 
 @(test) day_05b_test :: proc(t: ^testing.T) {
     context.logger = log.create_console_logger(.Debug, { .Level, .Terminal_Color })
@@ -119,6 +119,7 @@ day_05b_process :: proc(input: []byte) -> (result: int) {
     for len(threads) > 0 {
         for i := 0; i < len(threads); /**/ {
             if t := threads[i]; thread.is_done(t) {
+                log.debugf("[%v]: done", t.user_index)
                 if threads_result[t.user_index] < result {
                     result = threads_result[t.user_index]
                 }
