@@ -101,7 +101,6 @@ day_04b_process :: proc(input: []byte) -> (result: int) {
         }
 
         result += 1
-        log.debugf("i: %v", i)
     }
 
     return 
